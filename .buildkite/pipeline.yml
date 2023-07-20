@@ -2,62 +2,9 @@ env:
   AWS_DEFAULT_REGION: ap-southeast-2
 
 steps:
-  - command: ./scripts/deploy-infra.sh dev
+  - command: echo "Hello World"
     label: ":aws: Doc Site - Deploy Infra - Dev"
     env:
       ENVIRONMENT: dev
     agents:
       queue: pactflow-dev
-    plugins:
-      - docker#v3.8.0:
-          image: "{ECR}.dkr.ecr.ap-southeast-2.amazonaws.com/build-container-awscli"
-          propagate-environment: true
-          propagate-uid-gid: true
-          always-pull: true
-
-  - wait
-
-  - command: /workdir/scripts/build-site.sh
-    label: ":hammer: Doc Site - Build - Dev"
-    env:
-      ENVIRONMENT: dev
-    agents:
-      queue: pactflow-dev
-    plugins:
-      - docker#v3.8.0:
-          image: "{ECR}.dkr.ecr.ap-southeast-2.amazonaws.com/build-container-yarn:latest"
-          propagate-environment: true
-          user: root
-          always-pull: true
-
-  - block: ":rocket: Release! Fly! Fly! Be FREE!!!"
-    if: build.branch != "master"
-    key: "confirm"
-
-  - command: ./scripts/deploy-infra.sh prod
-    label: ":aws: Doc Site - Deploy Infra - Prod"
-    env:
-      ENVIRONMENT: prod
-    agents:
-      queue: pactflow-prod
-    plugins:
-      - docker#v3.8.0:
-          image: "{PRODECR}.dkr.ecr.ap-southeast-2.amazonaws.com/build-container-awscli"
-          propagate-environment: true
-          propagate-uid-gid: true
-          always-pull: true
-
-  - wait
-
-  - command: /workdir/scripts/sync.sh
-    label: ":hammer: Doc Site - Sync to Prod"
-    env:
-      ENVIRONMENT: prod
-    agents:
-      queue: pactflow-prod
-    plugins:
-      - docker#v3.8.0:
-          image: "{PRODECR}.dkr.ecr.ap-southeast-2.amazonaws.com/build-container-awscli"
-          propagate-environment: true
-          always-pull: true
-          propagate-uid-gid: true
